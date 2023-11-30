@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>maven-sample</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <properties>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <profiles>
+        <profile>
+            <!-- 開発環境のためのプロファイル -->
+            <id>for-dev</id>
+            <activation>
+                <!-- このプロファイルをデフォルトにする -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <!-- 開発環境のためのJVM構成 -->
+                <liberty.jvm.maxHeap>-Xmx512m</liberty.jvm.maxHeap>
+                <liberty.jvm.stdout>-Dstdout.encoding=UTF-8</liberty.jvm.stdout>
+                <liberty.jvm.stderr>-Dstderr.encoding=UTF-8</liberty.jvm.stderr>
+                <!-- 開発環境のための環境変数 -->
+                <liberty.env.APP_CONF_MODE>debug</liberty.env.APP_CONF_MODE>
+                <mergeServerEnv>true</mergeServerEnv>
+            </properties>
+        </profile>
+        <profile>
+            <!-- デプロイ用のパッケージ作成のためのプロファイル -->
+            <id>for-package</id>
+            <properties>
+                <!-- デプロイ用のパッケージ作成のためのJVM構成 -->
+                <liberty.jvm.maxHeap>-Xmx4096m</liberty.jvm.maxHeap>
+                <liberty.jvm.verbosegc>-verbose:gc</liberty.jvm.verbosegc>
+                <liberty.jvm.verbosegclog>-Xverbosegclog:logs/verbosegc.%Y%m%d.%H%M%S.log</liberty.jvm.verbosegclog>
+            </properties>
+        </profile>
+    </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.microprofile</groupId>
+            <artifactId>microprofile</artifactId>
+            <version>5.0</version>
+            <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>maven-sample</finalName>
+        <plugins>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.openliberty.tools</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <version>3.9</version>
+                <configuration>
+                    <!-- 使用するLibertyをOpen Liberty version 23.0.0.9に固定 -->
+                    <runtimeArtifact>
+                        <groupId>io.openliberty</groupId>
+                        <artifactId>openliberty-kernel</artifactId>
+                        <version>23.0.0.9</version>
+                    </runtimeArtifact>
+                    <skipInstallFeature>true</skipInstallFeature>
+                    <!-- 作成するLibertyのパッケージには最小限のFeatureのみ含める -->
+                    <include>minify</include>
+                </configuration>
+                <executions>
+                    <execution>
+                        <!-- packageゴールでLibertyの作成やパッケージも実行 -->
+                        <id>package-server</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>create</goal>
+                            <goal>install-feature</goal>
+                            <goal>deploy</goal>
+                            <goal>package</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

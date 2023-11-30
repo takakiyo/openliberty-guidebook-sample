@@ -13,11 +13,26 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Windows環境でターミナルが文字化けしたら，以下の2行を追加 
-        <liberty.jvm.arg1>-Dstdout.encoding=UTF-8</liberty.jvm.arg1>
-        <liberty.jvm.arg2>-Dstderr.encoding=UTF-8</liberty.jvm.arg2>
-        -->
     </properties>
+    <!-- Windows環境でターミナルが文字化け対応のための設定
+    <profiles>
+        <profile>
+            <id>for-dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <liberty.jvm.arg1>-Dstdout.encoding=UTF-8</liberty.jvm.arg1>
+                <liberty.jvm.arg2>-Dstderr.encoding=UTF-8</liberty.jvm.arg2>
+            </properties>
+        </profile>
+        <profile>
+            <id>package</id>
+            <properties>
+            </properties>
+        </profile>
+    </profiles>
+    -->
 
     <dependencies>
         <dependency>
